@@ -1,0 +1,20 @@
+{
+	"scripts": {
+		"phase1:invoke": "tsx phase1/src/invoke-demo.ts",
+		"phase1:logs": "tsx phase1/src/show-recent-logs.ts",
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@langchain/core": "^1.2.0",
+		"@langchain/openai": "^1.5.1",
+		"dotenv": "^17.4.2",
+		"langchain": "^1.5.0"
+	},
+	"devDependencies": {
+		"@types/node": "^26.0.0",
+		"tsx": "^4.22.4",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.9"
+	}
+}
