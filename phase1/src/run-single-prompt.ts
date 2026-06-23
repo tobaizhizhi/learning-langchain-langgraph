@@ -1,4 +1,4 @@
-import type { BaseMessage } from "@langchain/core/messages";
+import { AIMessage, type BaseMessage } from "@langchain/core/messages";
 
 import { createChatModel } from "./chat-model-factory.js";
 import {
@@ -24,8 +24,16 @@ export type RunSinglePromptResult = {
 	startedAt: string;
 	latencyMs: number;
 	text: string;
+	inputTokens?: number;
+	outputTokens?: number;
+	finishReason?: string;
 	raw: BaseMessage;
 };
+
+export type ModelResponseMetadata = Pick<
+	RunSinglePromptResult,
+	"inputTokens" | "outputTokens" | "finishReason"
+>;
 
 export async function runSinglePrompt(
 	input: RunSinglePromptInput,
@@ -43,6 +51,7 @@ export async function runSinglePrompt(
 		]);
 
 		const latencyMs = Date.now() - startedAtMs;
+		const metadata = extractModelResponseMetadata(response);
 
 		if (input.logPath) {
 			await appendModelRunLog(
@@ -55,6 +64,7 @@ export async function runSinglePrompt(
 					ok: true,
 					inputPreview,
 					outputPreview: createTextPreview(response.text),
+					...metadata,
 				},
 				input.logPath,
 			);
@@ -67,28 +77,45 @@ export async function runSinglePrompt(
 			startedAt: startedAt.toISOString(),
 			latencyMs,
 			text: response.text,
+			...metadata,
 			raw: response,
 		};
 	} catch (error: unknown) {
 		const latencyMs = Date.now() - startedAtMs;
 
 		if (input.logPath) {
-			await appendModelRunLog(
-				{
-					runId,
-					provider: input.config.provider,
-					model: input.config.model,
-					startedAt: startedAt.toISOString(),
-					latencyMs,
-					ok: false,
-					errorType: getErrorType(error),
-					errorMessage: getErrorMessage(error),
-					inputPreview,
-				},
-				input.logPath,
-			);
+			try {
+				await appendModelRunLog(
+					{
+						runId,
+						provider: input.config.provider,
+						model: input.config.model,
+						startedAt: startedAt.toISOString(),
+						latencyMs,
+						ok: false,
+						errorType: getErrorType(error),
+						errorMessage: getErrorMessage(error),
+						inputPreview,
+					},
+					input.logPath,
+				);
+			} catch {
+				// Keep the original model error as the error the caller sees.
+			}
 		}
 
 		throw error;
 	}
+}
+
+export function extractModelResponseMetadata(response: BaseMessage): ModelResponseMetadata {
+	const usage = AIMessage.isInstance(response) ? response.usage_metadata : undefined;
+	const responseMetadata = response.response_metadata as Record<string, unknown> | undefined;
+	const finishReason = responseMetadata?.finish_reason;
+
+	return {
+		inputTokens: usage?.input_tokens,
+		outputTokens: usage?.output_tokens,
+		finishReason: typeof finishReason === "string" ? finishReason : undefined,
+	};
 }

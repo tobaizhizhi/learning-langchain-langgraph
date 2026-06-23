@@ -4,18 +4,36 @@ import { dirname } from "node:path";
 
 export const defaultModelRunLogPath = "phase1/runs/model-runs.jsonl";
 
-export type ModelRunLog = {
+type BaseModelRunLog = {
 	runId: string;
 	provider: string;
 	model: string;
 	startedAt: string;
 	latencyMs: number;
-	ok: boolean;
-	errorType?: string;
-	errorMessage?: string;
 	inputPreview: string;
-	outputPreview?: string;
 };
+
+export type SuccessfulModelRunLog = BaseModelRunLog & {
+	ok: true;
+	outputPreview: string;
+	inputTokens?: number;
+	outputTokens?: number;
+	finishReason?: string;
+	errorType?: never;
+	errorMessage?: never;
+};
+
+export type FailedModelRunLog = BaseModelRunLog & {
+	ok: false;
+	errorType: string;
+	errorMessage: string;
+	outputPreview?: never;
+	inputTokens?: never;
+	outputTokens?: never;
+	finishReason?: never;
+};
+
+export type ModelRunLog = SuccessfulModelRunLog | FailedModelRunLog;
 
 export function createRunId(): string {
 	return randomUUID();

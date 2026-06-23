@@ -51,22 +51,10 @@ export function parseModelId(input: string): ModelId {
 
 export function loadModelConfigFromEnv(env: EnvLike = process.env): ModelConfig {
 	const modelId = readOptionalString(env.MODEL_ID);
-	const providerFromEnv = readOptionalString(env.MODEL_PROVIDER);
-	const modelFromEnv = readOptionalString(env.MODEL_NAME);
-
-	const parsedModelId = modelId ? parseModelId(modelId) : undefined;
-
-	if (!parsedModelId && providerFromEnv && !modelFromEnv) {
-		throw new Error("MODEL_NAME is required when MODEL_PROVIDER is set.");
-	}
 
 	const candidate: ModelConfig = {
 		...defaultModelConfig,
-		...parsedModelId,
-		provider: providerFromEnv
-			? parseProviderName(providerFromEnv)
-			: parsedModelId?.provider ?? defaultModelConfig.provider,
-		model: modelFromEnv ?? parsedModelId?.model ?? defaultModelConfig.model,
+		...(modelId ? parseModelId(modelId) : {}),
 		temperature: parseNumberEnv(
 			"MODEL_TEMPERATURE",
 			env.MODEL_TEMPERATURE,

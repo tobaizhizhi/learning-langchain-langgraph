@@ -42,7 +42,11 @@ describe("model run logs", () => {
 			ok: true,
 			inputPreview: "Explain reentrancy.",
 		});
+		expect(logs[0]?.startedAt).toEqual(expect.any(String));
+		expect(logs[0]?.latencyMs).toBeGreaterThanOrEqual(0);
 		expect(logs[0]?.outputPreview).toContain("[mock:mock-chat]");
+		expect(logs[0]?.errorType).toBeUndefined();
+		expect(logs[0]?.errorMessage).toBeUndefined();
 	});
 
 	it("writes a failed model call to JSONL", async () => {
@@ -73,6 +77,29 @@ describe("model run logs", () => {
 			errorType: "Error",
 			inputPreview: "Explain reentrancy.",
 		});
+		expect(logs[0]?.runId).toEqual(expect.any(String));
+		expect(logs[0]?.startedAt).toEqual(expect.any(String));
+		expect(logs[0]?.latencyMs).toBeGreaterThanOrEqual(0);
 		expect(logs[0]?.errorMessage).toContain("not implemented yet");
+		expect(logs[0]?.outputPreview).toBeUndefined();
+	});
+
+	it("does not hide the original model error when writing a failure log fails", async () => {
+		const directoryPath = await mkdtemp(join(tmpdir(), "phase1-model-runs-"));
+
+		await expect(
+			runSinglePrompt({
+				config: {
+					provider: "anthropic",
+					model: "claude-sonnet-4-5",
+					temperature: 0,
+					timeoutMs: 30_000,
+					maxRetries: 0,
+				},
+				systemPrompt: "You are concise.",
+				userPrompt: "Explain reentrancy.",
+				logPath: directoryPath,
+			}),
+		).rejects.toThrow(/not implemented yet/);
 	});
 });

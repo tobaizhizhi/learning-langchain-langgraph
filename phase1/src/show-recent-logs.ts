@@ -30,6 +30,21 @@ async function main() {
 			console.log(`  output: ${log.outputPreview}`);
 		}
 
+		const tokenSummary = [
+			log.inputTokens === undefined ? undefined : `input=${log.inputTokens}`,
+			log.outputTokens === undefined ? undefined : `output=${log.outputTokens}`,
+		]
+			.filter(Boolean)
+			.join(" ");
+
+		if (tokenSummary) {
+			console.log(`  tokens: ${tokenSummary}`);
+		}
+
+		if (log.finishReason) {
+			console.log(`  finish: ${log.finishReason}`);
+		}
+
 		if (log.errorMessage) {
 			console.log(`  error: ${log.errorMessage}`);
 		}

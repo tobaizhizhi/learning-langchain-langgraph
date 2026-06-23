@@ -4,6 +4,8 @@
 
 目标：从能调用模型，逐步进阶到能设计、实现、评估、部署作品集级别的 agent 系统。路线不绑定某一个大模型，优先学习成熟工具和可迁移的工程能力。
 
+生成或修改每个阶段课程大纲时，必须遵守：`docs/course-outline-rules.md`。
+
 ## 总体策略
 
 这条路线分成两条并行主线：
@@ -56,7 +58,7 @@ AI 应用核心：
 | 学完的内容 | 可以做的项目 | 项目目标 | 重点展示能力 |
 | --- | --- | --- | --- |
 | 阶段 0：TypeScript、Node.js、异步、测试基础 | AI 调用 CLI | 做一个可配置 provider/model 的命令行模型调用器 | 工程基础、错误处理、环境变量、调用日志 |
-| 阶段 1：模型抽象、stream、batch、多 provider | Model Capability Lab | 对比多个模型在同一批任务上的质量、延迟、成本和格式稳定性 | 不绑定模型、模型能力矩阵、benchmark 思维 |
+| 阶段 1：模型抽象、messages、invoke、stream | Model Interface Lab | 做一个可配置、可观测的模型调用层 | 不绑定模型、messages 边界、结果归一化、调用日志 |
 | 阶段 2：tools、Zod schema、structured output | Structured Tool Assistant | 一个能查资料、改任务状态、输出结构化结果的工具型助理 | 工具调用、参数校验、结构化输出、失败恢复 |
 | 阶段 3：`createAgent`、middleware、memory、observability | Personal Operations Agent | 一个带 Web UI 的个人运营助理，可展示 tool calls 和 trace | agent harness、middleware、短期记忆、调试可视化 |
 | 阶段 4：RAG、chunking、embedding、retriever、citation | Knowledge Base Assistant | 对真实文档集问答，答案带引用，找不到依据时拒答 | RAG 工程、引用溯源、检索评估、拒答能力 |
@@ -69,7 +71,7 @@ AI 应用核心：
 
 项目之间的升级关系：
 
-- AI 调用 CLI 升级成 Model Capability Lab：从“能调用模型”变成“能比较和选择模型”。
+- AI 调用 CLI 升级成 Model Interface Lab：从“能调用一个接口”变成“有可配置、可替换、可观测的模型层”。
 - Structured Tool Assistant 升级成 Personal Operations Agent：从“能调用工具”变成“有 agent harness、UI 和 trace”。
 - Knowledge Base Assistant 升级成 Deep Research Workflow：从“单次 RAG 问答”变成“多步骤研究系统”。
 - Graph Workflow Assistant 升级成 Durable Agent Workspace：从“状态图 demo”变成“可恢复、可审批、可长时间运行的应用”。
@@ -112,21 +114,22 @@ AI 应用核心：
 要掌握：
 
 - `initChatModel`、chat model、embedding model、message roles。
-- `invoke`、`stream`、`batch` 的差异。
-- 模型能力矩阵：tool calling、structured output、multimodal、reasoning、context window、latency、价格。
-- 动态模型选择：按任务类型、预算、延迟、结构化输出能力选择模型。
+- `invoke`、`stream` 的差异。
+- `AIMessage`、`response.text`、usage metadata、response metadata。
+- 模型配置、mock provider、中转地址、调用日志。
 
-项目 1：Model Capability Lab
+项目 1：Model Interface Lab
 
-- 做一个模型实验台，支持多个 provider。
-- 同一批测试问题跑多个模型，记录质量、延迟、失败率、输出格式稳定性。
-- 输出一个 Markdown 报告：什么任务适合快模型，什么任务适合强推理模型，什么任务必须支持结构化输出。
+- 做一个模型调用实验台，支持配置 provider/model。
+- 支持 `mock` 和至少一个真实 provider 或 OpenAI-compatible 中转。
+- 支持 `invoke` 和最小 `stream`。
+- 记录 provider、model、latency、runId、错误摘要。
 
 完成标准：
 
 - 业务代码只依赖统一的 model factory。
 - 模型名、provider、temperature、max tokens 都由配置管理。
-- 有一组固定 benchmark prompt，可重复对比模型。
+- 能解释 messages 的 role、`AIMessage` 返回值和结果归一化。
 
 ## 阶段 2：工具调用与结构化输出
 

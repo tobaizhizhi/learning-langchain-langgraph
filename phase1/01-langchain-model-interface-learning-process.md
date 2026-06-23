@@ -16,7 +16,7 @@
 - 一个 `invoke` demo：输入 prompt，输出模型回答、provider、model、latency。
 - 一份学习记录：本次用了什么 provider、什么模型、遇到什么错误、如何修复。
 
-本节先不追求 stream、batch、tool calling、structured output。那些是后续章节。这里要先把“模型是可替换组件”这件事练稳。
+本节先不追求 stream、tool calling、structured output。那些是后续章节。这里要先把“模型是可替换组件”这件事练稳。
 
 ## 前置准备
 
@@ -84,7 +84,7 @@ type ModelConfig = {
 };
 ```
 
-这样后面做 benchmark、fallback、动态路由时，才能清楚知道每一次调用到底用的是谁。
+这样后面接 tools、RAG 或 LangGraph 节点时，才能清楚知道每一次调用到底用的是谁。
 
 ### 3. Model Factory 的价值
 
@@ -101,7 +101,7 @@ const model = await createChatModel(config);
 const response = await model.invoke(messages);
 ```
 
-这样后续切模型、加 provider、做 fallback，都不会到处改业务逻辑。
+这样后续切模型、加 provider，都不会到处改业务逻辑。
 
 ## 推荐学习流程
 
@@ -160,7 +160,7 @@ mock provider：本地固定返回，用于测试和离线开发
 
 ### Step 3：设计模型配置
 
-这一步是在设计项目自己的模型配置格式。它的作用是把 provider、model、temperature、timeout 这些选择集中管理起来，后面业务代码只接收一个 `ModelConfig`，不用到处散落模型名和参数。这样以后换模型、接中转、做 benchmark 或 fallback 时，不需要翻遍全项目改硬编码。
+这一步是在设计项目自己的模型配置格式。它的作用是把 provider、model、temperature、timeout 这些选择集中管理起来，后面业务代码只接收一个 `ModelConfig`，不用到处散落模型名和参数。这样以后换模型、接中转，或者把模型层接到 tools/RAG/LangGraph 时，不需要翻遍全项目改硬编码。
 
 先定义课程内统一配置，不要照搬某个 provider 的所有参数。
 
@@ -217,13 +217,14 @@ export type ModelConfig = {
 
 支持的环境变量：
 
-- `MODEL_ID`：推荐写法，例如 `openai:gpt-4o-mini`
-- `MODEL_PROVIDER` + `MODEL_NAME`：拆开写 provider 和 model
+- `MODEL_ID`：唯一推荐写法，例如 `openai:gpt-4o-mini`
 - `MODEL_TEMPERATURE`
 - `MODEL_MAX_TOKENS`
 - `MODEL_BASE_URL`：可选，中转地址，例如 OpenAI-compatible endpoint
 - `MODEL_TIMEOUT_MS`
 - `MODEL_MAX_RETRIES`
+
+第一版不支持 `MODEL_PROVIDER` + `MODEL_NAME` 这种拆开写法。它和 `MODEL_ID` 表达的是同一件事，会增加学习入口，暂时删掉。
 
 ### Step 4：实现第一版 createChatModel
 
@@ -400,7 +401,7 @@ USER_PROMPT=请用三句话解释 Solidity 里的 reentrancy。
 
 ### Step 6：明确 system prompt 与 user prompt 的边界
 
-这一步是在学习 prompt 的分工。`system prompt` 负责长期规则和模型行为边界，`user prompt` 负责本次具体任务。把这两者分清楚，后面做可复用 prompt、benchmark、LangGraph 节点和审计报告生成时，才不会把一次性输入和长期约束混在一起。
+这一步是在学习 prompt 的分工。`system prompt` 负责长期规则和模型行为边界，`user prompt` 负责本次具体任务。把这两者分清楚，后面做 tools、RAG、LangGraph 节点和审计报告生成时，才不会把一次性输入和长期约束混在一起。
 
 第一版 system prompt 不要写太复杂。建议这样：
 
@@ -429,7 +430,7 @@ user prompt 放具体任务：
 
 ### Step 7：记录调用结果
 
-这一步是在建立最小可观测性。模型调用失败或输出变差时，只看最终回答通常不够，你还需要知道用了哪个 provider/model、耗时多久、是否失败、失败类型是什么。先记录最基础的运行日志，后面接 LangSmith、benchmark 和作品集报告时会自然升级。
+这一步是在建立最小可观测性。模型调用失败或输出变差时，只看最终回答通常不够，你还需要知道用了哪个 provider/model、耗时多久、是否失败、失败类型是什么。先记录最基础的运行日志，后面接 LangSmith 或作品集报告时会自然升级。
 
 每一次模型调用至少记录：
 
@@ -637,7 +638,6 @@ phase1/
 - `.env`
 - `models.config.ts`
 - JSON/YAML 配置文件
-- benchmark suite 配置
 
 业务逻辑只接收 `ModelConfig`。
 
@@ -650,13 +650,11 @@ mock provider 可以让你：
 - 测试稳定，不依赖网络。
 - 专门测试错误路径。
 
-阶段 1 后面做 benchmark 时，mock provider 还可以作为基准，验证 runner 和 report writer 本身没有问题。
-
 ### 4. 为什么现在就记录 latency？
 
 模型工程不是只看“能不能回答”。latency 会直接影响用户体验，也会影响后面 agent 多步调用的总耗时。
 
-阶段 1 的每次调用都记录 latency，是为了后面自然过渡到 model capability lab。
+阶段 1 的每次调用都记录 latency，是为了你能排查慢响应，并为后续 agent 多步调用估算总耗时。
 
 ## 本节验收标准
 

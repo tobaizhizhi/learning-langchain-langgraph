@@ -55,12 +55,14 @@ describe("model config", () => {
 		});
 	});
 
-	it("requires MODEL_NAME when MODEL_PROVIDER is set without MODEL_ID", () => {
-		expect(() =>
-			loadModelConfigFromEnv({
-				MODEL_PROVIDER: "openai",
-			}),
-		).toThrow(/MODEL_NAME is required/);
+	it("uses the default mock config when MODEL_ID is not set", () => {
+		expect(loadModelConfigFromEnv({})).toEqual({
+			provider: "mock",
+			model: "mock-chat",
+			temperature: 0,
+			timeoutMs: 30_000,
+			maxRetries: 2,
+		});
 	});
 
 	it("validates config without calling any model provider", () => {

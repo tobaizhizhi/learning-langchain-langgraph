@@ -1,6 +1,7 @@
 {
 	"scripts": {
 		"phase1:invoke": "tsx phase1/src/invoke-demo.ts",
+		"phase1:stream": "tsx phase1/src/stream-demo.ts",
 		"phase1:logs": "tsx phase1/src/show-recent-logs.ts",
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit"
