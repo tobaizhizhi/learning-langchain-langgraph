@@ -3,6 +3,11 @@
 		"phase1:invoke": "tsx phase1/src/invoke-demo.ts",
 		"phase1:stream": "tsx phase1/src/stream-demo.ts",
 		"phase1:logs": "tsx phase1/src/show-recent-logs.ts",
+		"phase2:tool-decisions": "tsx phase2/src/tool-decision-examples.ts",
+		"phase2:direct-tools": "tsx phase2/src/direct-tool-demo.ts",
+		"phase2:tool-call": "tsx phase2/src/tool-call-request-demo.ts",
+		"phase2:assistant": "tsx phase2/src/tool-assistant-demo.ts",
+		"phase2:structured-output": "tsx phase2/src/structured-output.ts",
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit"
 	},
@@ -10,7 +15,8 @@
 		"@langchain/core": "^1.2.0",
 		"@langchain/openai": "^1.5.1",
 		"dotenv": "^17.4.2",
-		"langchain": "^1.5.0"
+		"langchain": "^1.5.0",
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@types/node": "^26.0.0",
