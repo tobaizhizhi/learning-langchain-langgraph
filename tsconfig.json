@@ -9,5 +9,5 @@
 		"skipLibCheck": true,
 		"types": ["node", "vitest/globals"]
 	},
-	"include": ["phase1/**/*.ts", "phase2/**/*.ts"]
+	"include": ["phase1/**/*.ts", "phase2/**/*.ts", "phase3/**/*.ts"]
 }

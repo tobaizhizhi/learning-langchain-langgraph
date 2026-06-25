@@ -8,6 +8,11 @@
 		"phase2:tool-call": "tsx phase2/src/tool-call-request-demo.ts",
 		"phase2:assistant": "tsx phase2/src/tool-assistant-demo.ts",
 		"phase2:structured-output": "tsx phase2/src/structured-output.ts",
+		"phase3:agent": "tsx phase3/src/agent-demo.ts",
+		"phase3:agent-result": "tsx phase3/src/agent-result-demo.ts",
+		"phase3:structured-agent": "tsx phase3/src/agent-structured-output.ts",
+		"phase3:agent-report": "tsx phase3/src/agent-report-demo.ts",
+		"phase3:context": "tsx phase3/src/context-demo.ts",
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit"
 	},
