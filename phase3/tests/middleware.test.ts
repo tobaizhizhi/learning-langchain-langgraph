@@ -55,4 +55,38 @@ describe("observation middleware", () => {
 			ok: true,
 		});
 	});
+
+	it("records model events when the response has content but no text property", async () => {
+		const report = createAgentRunReport({
+			provider: "openai",
+			model: "gpt-test",
+			userPrompt: "hello",
+			now: () => new Date("2026-06-25T00:00:00.000Z"),
+		});
+		const middleware = createObservationMiddleware({
+			report,
+			now: () => new Date("2026-06-25T00:00:00.000Z"),
+		});
+
+		await middleware.wrapModelCall?.(
+			{
+				model: { model: "gpt-test" },
+				messages: [{ content: "hello" }],
+				systemPrompt: "",
+				systemMessage: { content: "" } as never,
+				tools: [],
+				state: { messages: [] } as never,
+				runtime: {} as never,
+			} as never,
+			async () => ({ content: "structured response" }) as never,
+		);
+
+		expect(report.events[0]).toMatchObject({
+			kind: "model",
+			ok: true,
+			output: {
+				textLength: "structured response".length,
+			},
+		});
+	});
 });

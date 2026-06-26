@@ -13,6 +13,7 @@
 		"phase3:structured-agent": "tsx phase3/src/agent-structured-output.ts",
 		"phase3:agent-report": "tsx phase3/src/agent-report-demo.ts",
 		"phase3:context": "tsx phase3/src/context-demo.ts",
+		"phase3:personal-agent": "tsx phase3/src/personal-ops-agent.ts",
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit"
 	},

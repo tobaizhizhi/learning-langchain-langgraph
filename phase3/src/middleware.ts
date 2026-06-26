@@ -27,6 +27,7 @@ export function createObservationMiddleware(input: CreateObservationMiddlewareIn
 
 			try {
 				const response = await handler(request);
+				const responseText = readMessageText(response);
 				recordAgentRunEvent(input.report, {
 					kind: "model",
 					name: readModelName(request.model),
@@ -40,7 +41,7 @@ export function createObservationMiddleware(input: CreateObservationMiddlewareIn
 						hasResponseFormat: request.responseFormat !== undefined,
 					},
 					output: {
-						textLength: response.text.length,
+						textLength: responseText.length,
 						requestedToolCalls: readToolCalls(response).map((toolCall) => toolCall.name),
 					},
 				});

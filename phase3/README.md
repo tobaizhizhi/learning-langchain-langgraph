@@ -531,15 +531,43 @@ CONTEXT_MAX_APPROX_TOKENS=300 pnpm phase3:context "请查询 @langchain/core 的
 
 重点看：
 
-- `phase3/src/agent-demo.ts`
+- `phase3/src/personal-ops-agent.ts`
 - `phase3/src/middleware.ts`
 - `phase3/src/run-report.ts`
+- `phase3/src/agent-structured-output.ts`
 
 练习：
 
-- 做一个命令：`pnpm phase3:agent "..."`
+- 做一个命令：`pnpm phase3:personal-agent "..."`
 - 输入 GitHub/npm 查询任务。
 - 输出结构化结果和 run report。
+
+本项目实现：
+
+```text
+真实模型配置
+-> 真实 GitHub/npm/time 工具
+-> createAgent
+-> toolStrategy 结构化输出
+-> modelCallLimitMiddleware / toolCallLimitMiddleware
+-> observation middleware
+-> 本地 run report
+-> 可选 LangSmith trace
+```
+
+运行：
+
+```bash
+pnpm phase3:personal-agent "请查询 langchain-ai/langchainjs 的 GitHub 仓库信息，并查询 @langchain/core 最近一周下载量。"
+```
+
+可选限制参数：
+
+```bash
+PHASE3_MODEL_CALL_LIMIT=6
+PHASE3_TOOL_CALL_LIMIT=8
+PHASE3_RECURSION_LIMIT=24
+```
 
 验收：
 
@@ -663,7 +691,8 @@ pnpm phase3:agent "请查询 langchain-ai/langchainjs，并总结 @langchain/cor
 pnpm phase3:agent-result "请查询 @langchain/openai 的 npm 信息"
 pnpm phase3:structured-agent "请查询 langchain-ai/langchainjs，并输出结构化结果"
 pnpm phase3:agent-report "请查询 @langchain/core 的 npm 包信息，并给出最近一周下载量。"
-pnpm phase3:context-demo
+pnpm phase3:context "请查询 @langchain/core 的 npm 包信息和最近一周下载量。"
+pnpm phase3:personal-agent "请查询 langchain-ai/langchainjs 的 GitHub 仓库信息，并查询 @langchain/core 最近一周下载量。"
 ```
 
 ## 一句话复习
