@@ -3,3 +3,4 @@ node_modules/
 *.env
 !*.env.example
 phase1/runs/*.jsonl
+phase4/runs/
