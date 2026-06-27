@@ -871,15 +871,44 @@ RAG 本身可以独立工作，但作品集里的 agent 往往需要把知识库
 
 重点看：
 
-- `phase2/src/tools.ts`
-- `phase3/README.md`
-- 新建 `phase4/src/rag-tool.ts`
+- `phase4/src/rag-tool.ts`：把 Qdrant 检索包装成只读 tool。
+- `phase4/src/rag-agent-demo.ts`：用阶段 3 的 `createAgent` 接入 RAG tool。
+- `phase2/src/tools.ts`：对照普通外部 API tool 的写法。
 
 练习：
 
 - 用 Zod 定义工具参数：`query`、`topK`、`phaseFilter?`。
 - 工具返回检索片段和来源，不直接执行写操作。
 - 在 agent prompt 里说明：回答课程相关问题时优先调用知识库工具。
+
+当前已实现：
+
+- `search_course_knowledge_base` 只读工具：
+  - 输入：`query`、`topK`、`phaseFilter?`
+  - 输出：`sourcePath`、`chunkIndex`、`citationKey`、`sectionTitle`、`contentPreview`
+  - 只查询 Qdrant，不重建索引，不修改文件。
+- `phase4:rag-tool`：直接调用 RAG tool，观察工具返回值。
+- `phase4:rag-agent`：用 `createAgent` 调用 RAG tool，再生成最终回答。
+
+运行：
+
+```bash
+pnpm phase4:rag-tool "LangChain invoke 返回什么"
+pnpm phase4:rag-tool "ToolMessage 是什么" --phase phase2 --topK 3
+```
+
+接入 agent：
+
+```bash
+pnpm phase4:rag-agent "请根据课程知识库解释 Step10 RAG eval 应该重点看哪些代码"
+```
+
+运行前需要：
+
+- Ollama 正在运行，且有 embedding model：`ollama list`
+- Qdrant 正在运行：`docker ps`
+- 已建立索引：`pnpm phase4:index`
+- `.env` 里已有真实 chat model、embedding、Qdrant 配置。
 
 验收：
 

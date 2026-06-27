@@ -22,6 +22,8 @@
 		"phase4:search": "tsx phase4/src/search-demo.ts",
 		"phase4:answer": "tsx phase4/src/rag-answer-demo.ts",
 		"phase4:eval": "tsx phase4/src/eval-rag.ts",
+		"phase4:rag-tool": "tsx phase4/src/rag-tool.ts",
+		"phase4:rag-agent": "tsx phase4/src/rag-agent-demo.ts",
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit"
 	},
